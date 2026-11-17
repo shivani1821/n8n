@@ -1,0 +1,626 @@
+{
+  "name": "Website Contact Lead Classifier",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "company-contact-us-form",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4a64fcab-e726-462f-b3bd-04cb5a16e5b1",
+      "name": "Contact Form Submission",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "ee6355c2-1838-4011-aac1-41721e11bc1e"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"success\": true, \"message\": \"Thank you, we received your query.\" }",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "f3735329-d263-4446-92c4-57e1bd1ad948",
+      "name": "Confirm Receipt to Website",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        272,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "leadId",
+              "type": "string",
+              "value": "={{ $execution.id }}-{{ $now.toMillis() }}"
+            },
+            {
+              "id": "a2",
+              "name": "submittedAt",
+              "type": "string",
+              "value": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}"
+            },
+            {
+              "id": "a3",
+              "name": "name",
+              "type": "string",
+              "value": "={{ ($json.body.name || '').toString().trim() }}"
+            },
+            {
+              "id": "a4",
+              "name": "phone",
+              "type": "string",
+              "value": "={{ ($json.body.phone || '').toString().trim() }}"
+            },
+            {
+              "id": "a5",
+              "name": "email",
+              "type": "string",
+              "value": "={{ ($json.body.email || '').toString().trim().toLowerCase() }}"
+            },
+            {
+              "id": "a6",
+              "name": "query",
+              "type": "string",
+              "value": "={{ ($json.body.query || '').toString().trim() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5c5658cf-1aef-450c-b33d-3cca0ef4a294",
+      "name": "Normalize Contact Details",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1mocDlS0jNNekO3vG3_qzwgbTcjSsC_hoxnA1tP4uySI/edit?gid=0#gid=0"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mocDlS0jNNekO3vG3_qzwgbTcjSsC_hoxnA1tP4uySI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Lead ID": "={{ $json.leadId }}",
+            "Submitted At": "={{ $json.submittedAt }}",
+            "Name": "={{ $json.name }}",
+            "Phone Number": "={{ $json.phone }}",
+            "Email Address": "={{ $json.email }}",
+            "Query": "={{ $json.query }}"
+          },
+          "schema": [
+            {
+              "id": "Lead ID",
+              "displayName": "Lead ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submitted At",
+              "displayName": "Submitted At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Address",
+              "displayName": "Email Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Query",
+              "displayName": "Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Label",
+              "displayName": "Label",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7c77a96c-ad31-4fc1-85e3-38c8c731bef6",
+      "name": "Save Lead to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        720,
+        128
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qrkcIPqyPvnGGOHT",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Classify this website contact-us query.\n\nName: {{ $('Normalize Contact Details').item.json.name }}\nEmail: {{ $('Normalize Contact Details').item.json.email }}\nPhone: {{ $('Normalize Contact Details').item.json.phone }}\nQuery: {{ $('Normalize Contact Details').item.json.query }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You triage inbound leads from a company's website contact form.\nAssign exactly one label:\n- Hot: urgent, needs an immediate reply (e.g. ready to buy now, critical issue, explicit urgency or deadline).\n- Warm: not urgent yet, but genuine interest that could become urgent (e.g. exploring options, asking pricing, planning soon).\n- Cold: not important (e.g. spam, irrelevant, vague, job seekers, sales pitches to us).\nIf unsure between two labels, pick the less urgent one. If the query is empty or unreadable, use Cold.\nAlso write a one-line summary (max 20 words) of what the person wants."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "9eb02c97-a7dd-43a6-8a78-acaf41ed3f5c",
+      "name": "Classify Lead with AI",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        800,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-6-luna",
+          "cachedResultName": "GPT-6 Luna"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "7adba7f3-04f4-48ee-be38-6876a6e7c79c",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        352
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "Gateway credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"label\": { \"type\": \"string\", \"enum\": [\"Hot\", \"Warm\", \"Cold\"], \"description\": \"Lead priority\" },\n    \"summary\": { \"type\": \"string\", \"description\": \"One-line summary of the query\" }\n  },\n  \"required\": [\"label\", \"summary\"]\n}"
+      },
+      "id": "d555452d-fc3f-4c58-adef-5a1d22d69e2c",
+      "name": "Label and Summary Format",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        944,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1mocDlS0jNNekO3vG3_qzwgbTcjSsC_hoxnA1tP4uySI/edit?gid=0#gid=0"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mocDlS0jNNekO3vG3_qzwgbTcjSsC_hoxnA1tP4uySI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Lead ID"
+          ],
+          "value": {
+            "Lead ID": "={{ $('Normalize Contact Details').item.json.leadId }}",
+            "Label": "={{ $json.output.label }}",
+            "Summary": "={{ $json.output.summary }}"
+          },
+          "schema": [
+            {
+              "id": "Lead ID",
+              "displayName": "Lead ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submitted At",
+              "displayName": "Submitted At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Address",
+              "displayName": "Email Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Query",
+              "displayName": "Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Label",
+              "displayName": "Label",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4e7f099e-48fa-4d88-92ab-6a5dd4edb368",
+      "name": "Add Label and Summary",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1152,
+        128
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qrkcIPqyPvnGGOHT",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Classify Lead with AI').item.json.output.label }}",
+              "rightValue": "Hot",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "id": "f9a5ce85-c5b0-4888-b000-3388b8ffea93"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "3bb1e0e0-79c0-43a6-ac33-4e3f645c72ca",
+      "name": "Is Hot Lead?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1328,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "lighthemoon92@gmail.com",
+        "subject": "=HOT lead: {{ $('Normalize Contact Details').item.json.name }}",
+        "message": "=<p>A new <b>Hot</b> lead just came in from the website. Please reply right away.</p>\n<p><b>Summary:</b> {{ $('Classify Lead with AI').item.json.output.summary }}</p>\n<p><b>Name:</b> {{ $('Normalize Contact Details').item.json.name }}<br>\n<b>Phone:</b> {{ $('Normalize Contact Details').item.json.phone }}<br>\n<b>Email:</b> {{ $('Normalize Contact Details').item.json.email }}<br>\n<b>Received:</b> {{ $('Normalize Contact Details').item.json.submittedAt }}</p>\n<p><b>Query:</b><br>{{ $('Normalize Contact Details').item.json.query }}</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "b85d85d6-264e-4d76-8847-4c9891147fc4",
+      "name": "Alert Me About Hot Lead",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1552,
+        128
+      ],
+      "webhookId": "29ea3a5a-66d4-4708-8888-fcb1ced3fb93",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pzQG1exHVl4R4vV3",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Normalize Contact Details').item.json.email }}",
+        "subject": "We received your query",
+        "message": "=<p>Hi {{ $('Normalize Contact Details').item.json.name }},</p>\n<p>Thank you for contacting us. We have received your query and our team will reply to you very soon.</p>\n<p>Best regards,<br>The Team</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "f2e01095-fc4f-4942-bd5c-e5097631cba7",
+      "name": "Send Confirmation to Lead",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1552,
+        320
+      ],
+      "webhookId": "38a977c6-3cd1-4c8a-b06b-b70577cc5722",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pzQG1exHVl4R4vV3",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Contact Form Submission": {
+      "main": [
+        [
+          {
+            "node": "Confirm Receipt to Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Receipt to Website": {
+      "main": [
+        [
+          {
+            "node": "Normalize Contact Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Contact Details": {
+      "main": [
+        [
+          {
+            "node": "Save Lead to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Lead to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Classify Lead with AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Lead with AI": {
+      "main": [
+        [
+          {
+            "node": "Add Label and Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify Lead with AI",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Label and Summary Format": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Classify Lead with AI",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Label and Summary": {
+      "main": [
+        [
+          {
+            "node": "Is Hot Lead?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Hot Lead?": {
+      "main": [
+        [
+          {
+            "node": "Alert Me About Hot Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Confirmation to Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "dc14ac68-2156-4c1e-97d6-04358a23e2fe",
+  "meta": {
+    "instanceId": "7d80934853c61ea263c0319efe578143336d35bfccaea13b873c2c6791be0f2a"
+  },
+  "nodeGroups": [
+    {
+      "id": "214811dd-7e6e-4425-bb4c-fefe298d9d6a",
+      "name": "Capture contact submission",
+      "nodeIds": [
+        "f3735329-d263-4446-92c4-57e1bd1ad948",
+        "5c5658cf-1aef-450c-b33d-3cca0ef4a294",
+        "7c77a96c-ad31-4fc1-85e3-38c8c731bef6"
+      ],
+      "description": "Acknowledges the website form, cleans up the name, phone, email and query, and logs a new row in the leads sheet"
+    },
+    {
+      "id": "91d36c72-20c6-4a83-8c5d-ba7355d8b385",
+      "name": "Qualify the lead",
+      "nodeIds": [
+        "9eb02c97-a7dd-43a6-8a78-acaf41ed3f5c",
+        "7adba7f3-04f4-48ee-be38-6876a6e7c79c",
+        "d555452d-fc3f-4c58-adef-5a1d22d69e2c",
+        "4e7f099e-48fa-4d88-92ab-6a5dd4edb368"
+      ],
+      "description": "AI rates the query Hot, Warm or Cold, writes a one-line summary, and fills the Label and Summary columns"
+    },
+    {
+      "id": "6b535042-2861-49c1-8285-9d7dee3ca27c",
+      "name": "Follow up hot leads",
+      "nodeIds": [
+        "3bb1e0e0-79c0-43a6-ac33-4e3f645c72ca",
+        "b85d85d6-264e-4d76-8847-4c9891147fc4",
+        "f2e01095-fc4f-4942-bd5c-e5097631cba7"
+      ],
+      "description": "Only for Hot leads: emails you an alert and sends the person a confirmation that a reply is coming soon"
+    }
+  ],
+  "id": "6XOUbIEGRpYiUaFk",
+  "tags": []
+}
